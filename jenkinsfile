@@ -1,18 +1,56 @@
 pipeline {
     agent any
 
+    environment {
+        GIT_REPO = 'git@github.com:hasnaainali/TICS_Github.git' // Replace with your repository URL
+        BRANCH = 'main' // Replace with your branch name if different
+    }
+
     stages {
-        stage('Build') {
+        stage('Clone Repository') {
             steps {
-                // Compile the Java program
-                sh 'javac HelloWorld.java'
+                echo 'Cloning the repository...'
+                git branch: "${BRANCH}", 
+                    credentialsId: 'your-credentials-id', 
+                    url: "${GIT_REPO}"
             }
         }
-        stage('Run') {
+
+        stage('Build') {
             steps {
-                // Run the Java program
-                sh 'java HelloWorld'
+                echo 'Building the application...'
+                // Add your build steps here. For example:
+                sh './build.sh' // Replace with your actual build command
             }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Running tests...'
+                // Add your test steps here. For example:
+                sh './test.sh' // Replace with your actual test command
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying the application...'
+                // Add your deployment steps here. For example:
+                sh './deploy.sh' // Replace with your actual deploy command
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs() // Cleans up the workspace after the build
+        }
+        success {
+            echo 'Build completed successfully!'
+        }
+        failure {
+            echo 'Build failed!'
         }
     }
 }
